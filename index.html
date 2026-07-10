@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mi Equipaje</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -11,6 +11,7 @@
             background-color: #f3f4f6;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: #1f2937;
+            -webkit-tap-highlight-color: transparent; /* Quita el brillo azul al tocar en móviles */
         }
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
@@ -19,38 +20,40 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Custom scrollbar for categories */
+        /* Custom scrollbar for categories - Oculto en móvil para mejor aspecto */
+        .category-scroll {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
         .category-scroll::-webkit-scrollbar {
-            height: 6px;
+            display: none; /* Chrome, Safari and Opera */
         }
-        .category-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-            border-radius: 4px;
-        }
-        .category-scroll::-webkit-scrollbar-thumb {
-            background: #d1d5db; 
-            border-radius: 4px;
+        
+        /* Estilos para el modal */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
         }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
+<body class="p-2 sm:p-4 md:p-8 min-h-screen pb-20"> <!-- pb-20 para dar espacio al scroll en móvil -->
 
     <div class="max-w-xl mx-auto">
         
         <!-- HEADER GENERAL -->
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-slate-800 flex items-center justify-center gap-2">
+        <header class="text-center mb-6 mt-4">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 flex items-center justify-center gap-2">
                 <i class="fa-solid fa-suitcase-rolling text-blue-600"></i> Mi Equipaje
             </h1>
-            <p class="text-slate-500 text-sm mt-1">Nunca más se te quedará nada</p>
+            <p class="text-slate-500 text-xs sm:text-sm mt-1">Nunca más se te quedará nada</p>
         </header>
 
         <!-- ========================================== -->
         <!-- PANTALLA 1: SELECCIÓN O CREACIÓN DE VIAJE  -->
         <!-- ========================================== -->
         <div id="view-home" class="fade-in">
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                <h2 class="text-xl font-semibold mb-4 text-slate-700">Tus Viajes</h2>
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 text-slate-700">Tus Viajes</h2>
                 
                 <!-- Lista de viajes existentes -->
                 <div id="tripList" class="space-y-3 mb-6">
@@ -58,11 +61,11 @@
                 </div>
 
                 <div class="border-t border-slate-100 pt-5 mt-2">
-                    <h3 class="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wide">Crear Nuevo Viaje</h3>
-                    <div class="flex gap-2">
+                    <h3 class="text-xs sm:text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wide">Crear Nuevo Viaje</h3>
+                    <div class="flex flex-col sm:flex-row gap-2">
                         <input type="text" id="newTripInput" placeholder="Ej: Fin de semana en la playa" 
-                               class="flex-1 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
-                        <button onclick="createNewTrip()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-medium transition shadow-sm">
+                               class="flex-1 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        <button onclick="createNewTrip()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-medium transition shadow-sm w-full sm:w-auto flex justify-center items-center gap-2">
                             <i class="fa-solid fa-plus"></i> Crear
                         </button>
                     </div>
@@ -70,120 +73,162 @@
             </div>
         </div>
 
-
         <!-- ========================================== -->
         <!-- PANTALLA 2: DENTRO DEL VIAJE               -->
         <!-- ========================================== -->
-        <div id="view-trip" class="hidden fade-in space-y-6">
+        <div id="view-trip" class="hidden fade-in space-y-4 sm:space-y-6">
             
             <!-- Cabecera del Viaje -->
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex justify-between items-center sticky top-2 z-10">
-                <div>
-                    <button onclick="goHome()" class="text-slate-400 hover:text-slate-700 mr-2 transition">
+            <div class="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-200 flex justify-between items-center sticky top-2 z-10">
+                <div class="flex items-center truncate mr-2">
+                    <button onclick="goHome()" class="text-slate-400 hover:text-slate-700 mr-2 sm:mr-3 transition p-2 -ml-2 rounded-lg">
                         <i class="fa-solid fa-arrow-left"></i>
                     </button>
-                    <span id="currentTripName" class="font-bold text-lg text-slate-800">Nombre del Viaje</span>
+                    <span id="currentTripName" class="font-bold text-base sm:text-lg text-slate-800 truncate">Nombre del Viaje</span>
                 </div>
-                <button onclick="deleteCurrentTrip()" class="text-red-400 hover:text-red-600 text-sm px-2 py-1 rounded transition">
-                    <i class="fa-regular fa-trash-can"></i> Eliminar
+                <button onclick="deleteCurrentTrip()" class="text-red-400 hover:text-red-600 text-xs sm:text-sm px-2 py-2 rounded-lg transition flex-shrink-0">
+                    <i class="fa-regular fa-trash-can"></i> <span class="hidden sm:inline">Eliminar</span>
                 </button>
             </div>
 
             <!-- Tabs: Ida / Regreso -->
             <div class="flex p-1 bg-slate-200 rounded-xl">
-                <button id="tab-ida" onclick="setMode('ida')" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow text-blue-700 transition">
-                    <i class="fa-solid fa-plane-departure mr-1"></i> Ida (Armando)
+                <button id="tab-ida" onclick="setMode('ida')" class="flex-1 py-2 sm:py-3 text-xs sm:text-sm font-semibold rounded-lg bg-white shadow text-blue-700 transition flex justify-center items-center gap-1">
+                    <i class="fa-solid fa-plane-departure"></i> Ida
                 </button>
-                <button id="tab-regreso" onclick="setMode('regreso')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition">
-                    <i class="fa-solid fa-plane-arrival mr-1"></i> Regreso (Empacando)
+                <button id="tab-regreso" onclick="setMode('regreso')" class="flex-1 py-2 sm:py-3 text-xs sm:text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition flex justify-center items-center gap-1">
+                    <i class="fa-solid fa-plane-arrival"></i> Regreso
                 </button>
             </div>
 
             <!-- Progreso (Solo Regreso) -->
             <div id="progress-container" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
                 <div class="flex justify-between text-sm mb-2 font-medium">
-                    <span class="text-slate-600" id="progress-text">Progreso de empacado</span>
+                    <span class="text-slate-600" id="progress-text">Progreso</span>
                     <span class="text-emerald-600 font-bold" id="progress-percent">0%</span>
                 </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5">
-                    <div id="progress-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                <div class="w-full bg-slate-100 rounded-full h-3">
+                    <div id="progress-bar" class="bg-emerald-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
             </div>
 
             <!-- Formulario Agregar Item (Solo Ida) -->
-            <div id="add-item-form" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                <h3 class="font-semibold text-slate-700 mb-3"><i class="fa-solid fa-plus-circle text-blue-500"></i> Agregar al bolso</h3>
+            <div id="add-item-form" class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+                <h3 class="font-semibold text-slate-700 mb-3 text-sm sm:text-base"><i class="fa-solid fa-plus-circle text-blue-500"></i> Agregar al bolso</h3>
                 
-                <input type="text" id="itemName" placeholder="¿Qué llevas? (Ej: Polerón favorito)" class="w-full border border-slate-300 rounded-xl px-4 py-3 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="itemName" placeholder="¿Qué llevas? (Ej: Polerón favorito)" class="w-full border border-slate-300 rounded-xl px-4 py-3 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 
                 <!-- Categorías con Scroll Horizontal -->
-                <p class="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Categoría</p>
-                <div class="flex overflow-x-auto gap-2 pb-2 mb-3 category-scroll" id="categorySelector">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Categoría</p>
+                    <button onclick="openCategoryModal()" class="text-xs text-blue-600 font-semibold hover:text-blue-800 bg-blue-50 px-2 py-1 rounded-md">
+                        + Nueva Categoría
+                    </button>
+                </div>
+                
+                <div class="flex overflow-x-auto gap-2 pb-3 mb-2 category-scroll" id="categorySelector">
                     <!-- Se llena con JS -->
                 </div>
 
                 <input type="text" id="itemDesc" placeholder="Nota opcional (Ej: En el bolsillo exterior)" class="w-full border border-slate-200 bg-slate-50 rounded-xl px-4 py-2 mb-4 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
                 
-                <button onclick="addItem()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-xl transition">
-                    Guardar en el bolso
+                <button onclick="addItem()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-xl transition flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-check"></i> Guardar en el bolso
                 </button>
             </div>
 
             <!-- Lista de Items -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex justify-between items-center">
-                    <h3 class="font-semibold text-slate-700" id="list-title">Contenido del Bolso</h3>
+                <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-700 text-sm sm:text-base" id="list-title">Contenido del Bolso</h3>
                     <span id="item-count" class="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full font-bold">0</span>
                 </div>
                 <ul id="itemsList" class="divide-y divide-slate-100">
                     <!-- Se llena con JS -->
                 </ul>
             </div>
-
         </div>
+    </div>
 
+    <!-- Modal para Nueva Categoría -->
+    <div id="categoryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl transform transition-all fade-in">
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Crear Categoría</h3>
+            
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Emoji (1 carácter)</label>
+                <!-- Usamos input type="text" para que en móvil abra el teclado normal y puedan elegir el emoji -->
+                <input type="text" id="newCatEmoji" placeholder="📱" maxlength="2" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase">Nombre de Categoría</label>
+                <input type="text" id="newCatName" placeholder="Ej: Electrónicos" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeCategoryModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition">
+                    Cancelar
+                </button>
+                <button onclick="saveNewCategory()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition">
+                    Guardar
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
         // ==========================================
-        // DATOS Y CATEGORÍAS
+        // DATOS Y CATEGORÍAS POR DEFECTO
         // ==========================================
-        const CATEGORIES = [
+        const DEFAULT_CATEGORIES = [
             { id: 'poleras', emoji: '👕', name: 'Poleras / Camisas' },
-            { id: 'pantalones', emoji: '👖', name: 'Pantalones / Jeans' },
-            { id: 'shorts', emoji: '🩳', name: 'Shorts / Bermudas' },
-            { id: 'abrigos', emoji: '🧥', name: 'Chaquetas / Abrigos' },
-            { id: 'chalecos', emoji: '🧶', name: 'Chalecos / Polerones' },
+            { id: 'pantalones', emoji: '👖', name: 'Pantalones' },
             { id: 'ropa_interior', emoji: '🩲', name: 'Ropa Interior' },
             { id: 'calcetines', emoji: '🧦', name: 'Calcetines' },
-            { id: 'pijama', emoji: '🌙', name: 'Pijama' },
-            { id: 'zapatillas', emoji: '👟', name: 'Zapatillas' },
-            { id: 'zapatos', emoji: '👞', name: 'Zapatos / Formal' },
-            { id: 'sandalias', emoji: '🩴', name: 'Sandalias / Chalas' },
-            { id: 'traje_bano', emoji: '🩱', name: 'Traje de Baño' },
-            { id: 'gorros', emoji: '🧢', name: 'Gorros / Sombreros' },
-            { id: 'accesorios', emoji: '🕶️', name: 'Lentes / Cinturón' },
+            { id: 'abrigos', emoji: '🧥', name: 'Abrigos / Chalecos' },
+            { id: 'zapatillas', emoji: '👟', name: 'Zapatillas / Zapatos' },
             { id: 'aseo', emoji: '🪥', name: 'Útiles de Aseo' },
-            { id: 'electronica', emoji: '🔌', name: 'Cargadores / Electrónica' },
-            { id: 'documentos', emoji: '🛂', name: 'Documentos / Dinero' },
+            { id: 'electronicos', emoji: '📱', name: 'Electrónicos' }, // Modificado según petición
+            { id: 'documentos', emoji: '🛂', name: 'Documentos' },
             { id: 'otros', emoji: '📦', name: 'Otros' }
         ];
 
-        let APP_DATA = JSON.parse(localStorage.getItem('viajes_app_data')) || {};
+        let APP_DATA = JSON.parse(localStorage.getItem('viajes_app_data_v2')) || { trips: {}, customCategories: [] };
+        
+        // Migración simple si alguien usaba la versión anterior (localStorage key: viajes_app_data)
+        const oldData = localStorage.getItem('viajes_app_data');
+        if (oldData && !localStorage.getItem('viajes_app_data_v2')) {
+            APP_DATA.trips = JSON.parse(oldData);
+            saveData();
+            localStorage.removeItem('viajes_app_data'); // Limpieza
+        }
+
         let activeTripId = null;
-        let selectedCategory = 'poleras'; // Por defecto
+        let selectedCategory = 'poleras';
         let currentMode = 'ida';
+
+        // Combinar categorías por defecto con las creadas por el usuario
+        function getAllCategories() {
+            return [...DEFAULT_CATEGORIES, ...(APP_DATA.customCategories || [])];
+        }
 
         // ==========================================
         // INICIALIZACIÓN
         // ==========================================
         function init() {
+            // Prevenir zoom en inputs en iOS
+            const meta = document.querySelector('meta[name=viewport]');
+            if (meta) {
+                meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
+            }
+
             renderCategories();
             showHome();
         }
 
         function saveData() {
-            localStorage.setItem('viajes_app_data', JSON.stringify(APP_DATA));
+            localStorage.setItem('viajes_app_data_v2', JSON.stringify(APP_DATA));
         }
 
         // ==========================================
@@ -201,8 +246,12 @@
             document.getElementById('view-home').classList.add('hidden');
             document.getElementById('view-trip').classList.remove('hidden');
             
-            document.getElementById('currentTripName').textContent = APP_DATA[id].name;
+            document.getElementById('currentTripName').textContent = APP_DATA.trips[id].name;
             setMode('ida'); // Siempre abre en modo ida
+            
+            // Scroll arriba al abrir viaje en móvil
+            window.scrollTo(0, 0);
+            
             renderItems();
         }
 
@@ -217,32 +266,33 @@
             const container = document.getElementById('tripList');
             container.innerHTML = '';
             
-            const tripIds = Object.keys(APP_DATA).sort((a,b) => APP_DATA[b].createdAt - APP_DATA[a].createdAt);
+            const tripIds = Object.keys(APP_DATA.trips || {}).sort((a,b) => APP_DATA.trips[b].createdAt - APP_DATA.trips[a].createdAt);
 
             if (tripIds.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-400 text-sm py-4 italic">No tienes viajes guardados. ¡Crea uno nuevo!</p>';
+                container.innerHTML = '<div class="text-center bg-slate-50 rounded-xl p-6 border border-slate-100"><p class="text-slate-500 text-sm mb-2">No tienes viajes guardados.</p><p class="text-xs text-slate-400">Crea uno abajo para empezar.</p></div>';
                 return;
             }
 
             tripIds.forEach(id => {
-                const trip = APP_DATA[id];
-                const itemCount = trip.items.length;
+                const trip = APP_DATA.trips[id];
+                const items = trip.items || [];
+                const itemCount = items.length;
                 
                 const div = document.createElement('div');
-                div.className = 'flex justify-between items-center p-4 bg-slate-50 hover:bg-blue-50 rounded-xl cursor-pointer border border-slate-100 transition group';
+                div.className = 'flex justify-between items-center p-3 sm:p-4 bg-slate-50 active:bg-slate-100 hover:bg-blue-50 rounded-xl cursor-pointer border border-slate-100 transition group';
                 div.onclick = () => openTrip(id);
                 
                 div.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold flex-shrink-0">
                             <i class="fa-solid fa-plane"></i>
                         </div>
-                        <div>
-                            <h4 class="font-semibold text-slate-700 group-hover:text-blue-700 transition">${trip.name}</h4>
-                            <p class="text-xs text-slate-500">${itemCount} cosa${itemCount !== 1 ? 's' : ''} en el bolso</p>
+                        <div class="truncate">
+                            <h4 class="font-semibold text-slate-700 text-sm sm:text-base truncate group-hover:text-blue-700 transition">${trip.name}</h4>
+                            <p class="text-xs text-slate-500">${itemCount} cosa${itemCount !== 1 ? 's' : ''}</p>
                         </div>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-400 transition"></i>
+                    <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-400 transition ml-2"></i>
                 `;
                 container.appendChild(div);
             });
@@ -251,10 +301,12 @@
         function createNewTrip() {
             const input = document.getElementById('newTripInput');
             const name = input.value.trim();
-            if (!name) return alert('Ponle un nombre a tu viaje');
+            if (!name) return alert('Por favor, ingresa un nombre para tu viaje');
+
+            if (!APP_DATA.trips) APP_DATA.trips = {};
 
             const id = 'trip_' + Date.now();
-            APP_DATA[id] = {
+            APP_DATA.trips[id] = {
                 name: name,
                 createdAt: Date.now(),
                 items: []
@@ -262,39 +314,101 @@
 
             saveData();
             input.value = '';
+            // Quitar foco para esconder teclado en móvil
+            input.blur();
             openTrip(id);
         }
 
         function deleteCurrentTrip() {
-            if (confirm(`¿Seguro que quieres borrar el viaje "${APP_DATA[activeTripId].name}"? Se perderá todo su contenido.`)) {
-                delete APP_DATA[activeTripId];
+            if (confirm(`¿Borrar el viaje "${APP_DATA.trips[activeTripId].name}"?\nSe perderá todo el contenido.`)) {
+                delete APP_DATA.trips[activeTripId];
                 saveData();
                 goHome();
             }
         }
 
         // ==========================================
-        // GESTIÓN DENTRO DEL VIAJE
+        // GESTIÓN DE CATEGORÍAS
         // ==========================================
         function renderCategories() {
             const container = document.getElementById('categorySelector');
             container.innerHTML = '';
             
-            CATEGORIES.forEach(cat => {
+            const allCategories = getAllCategories();
+
+            // Si la categoría seleccionada fue borrada o no existe, seleccionar la primera
+            if (!allCategories.find(c => c.id === selectedCategory)) {
+                selectedCategory = allCategories[0].id;
+            }
+
+            allCategories.forEach(cat => {
+                const isSelected = selectedCategory === cat.id;
                 const btn = document.createElement('button');
-                btn.className = `flex-shrink-0 px-3 py-2 rounded-lg text-sm border transition flex items-center gap-1
-                    ${selectedCategory === cat.id 
-                        ? 'bg-blue-100 border-blue-300 text-blue-800 font-semibold' 
+                // Optimizamos padding y tamaño de fuente para móvil
+                btn.className = `flex-shrink-0 px-3 py-2 rounded-xl text-xs sm:text-sm border transition flex items-center gap-1.5
+                    ${isSelected 
+                        ? 'bg-blue-100 border-blue-300 text-blue-800 font-bold shadow-sm' 
                         : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`;
-                btn.innerHTML = `<span>${cat.emoji}</span> <span>${cat.name.split(' / ')[0]}</span>`;
+                
+                btn.innerHTML = `<span class="text-base">${cat.emoji}</span> <span>${cat.name.split(' / ')[0]}</span>`;
                 btn.onclick = () => {
                     selectedCategory = cat.id;
-                    renderCategories(); // re-render to update classes
+                    renderCategories();
+                    // Scroll suave para centrar la categoría seleccionada (muy útil en móvil)
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 };
                 container.appendChild(btn);
             });
         }
 
+        // Modal de Nueva Categoría
+        function openCategoryModal() {
+            document.getElementById('categoryModal').classList.remove('hidden');
+            document.getElementById('newCatEmoji').focus();
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.add('hidden');
+            document.getElementById('newCatEmoji').value = '';
+            document.getElementById('newCatName').value = '';
+        }
+
+        function saveNewCategory() {
+            const emojiInput = document.getElementById('newCatEmoji');
+            const nameInput = document.getElementById('newCatName');
+            
+            let emoji = emojiInput.value.trim() || '📌';
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                alert('Ingresa un nombre para la categoría');
+                return;
+            }
+
+            // Tomar solo el primer caracter si pusieron mucho texto (asumiendo que escribieron un emoji)
+            // Se usa Array.from para manejar bien emojis que ocupan más de 1 byte
+            const chars = Array.from(emoji);
+            if (chars.length > 0) emoji = chars[0];
+
+            const newId = 'cat_' + Date.now();
+            
+            if (!APP_DATA.customCategories) APP_DATA.customCategories = [];
+            
+            APP_DATA.customCategories.push({
+                id: newId,
+                emoji: emoji,
+                name: name
+            });
+
+            saveData();
+            selectedCategory = newId; // Seleccionar la recién creada
+            renderCategories();
+            closeCategoryModal();
+        }
+
+        // ==========================================
+        // GESTIÓN DENTRO DEL VIAJE (ITEMS)
+        // ==========================================
         function setMode(mode) {
             currentMode = mode;
             const tabIda = document.getElementById('tab-ida');
@@ -304,14 +418,14 @@
             const listTitle = document.getElementById('list-title');
 
             if (mode === 'ida') {
-                tabIda.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow text-blue-700 transition";
-                tabRegreso.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition";
+                tabIda.className = "flex-1 py-2 sm:py-3 text-xs sm:text-sm font-bold rounded-lg bg-white shadow text-blue-700 transition flex justify-center items-center gap-1";
+                tabRegreso.className = "flex-1 py-2 sm:py-3 text-xs sm:text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition flex justify-center items-center gap-1";
                 addForm.classList.remove('hidden');
                 progress.classList.add('hidden');
                 listTitle.textContent = "Contenido del Bolso";
             } else {
-                tabRegreso.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow text-emerald-700 transition";
-                tabIda.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition";
+                tabRegreso.className = "flex-1 py-2 sm:py-3 text-xs sm:text-sm font-bold rounded-lg bg-white shadow text-emerald-700 transition flex justify-center items-center gap-1";
+                tabIda.className = "flex-1 py-2 sm:py-3 text-xs sm:text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition flex justify-center items-center gap-1";
                 addForm.classList.add('hidden');
                 progress.classList.remove('hidden');
                 listTitle.textContent = "Checklist de Regreso";
@@ -327,13 +441,18 @@
             const desc = descInput.value.trim();
 
             if (!name) {
-                nameInput.focus();
+                // En móvil, mejor no hacer focus() agresivo para no marear abriendo el teclado
+                alert('Ingresa qué vas a llevar');
                 return;
             }
 
-            const catInfo = CATEGORIES.find(c => c.id === selectedCategory);
+            const allCategories = getAllCategories();
+            let catInfo = allCategories.find(c => c.id === selectedCategory);
+            
+            // Fallback por si acaso
+            if (!catInfo) catInfo = { id: 'otros', emoji: '📦', name: 'Otros' };
 
-            APP_DATA[activeTripId].items.unshift({ // unshift para agregar al principio
+            APP_DATA.trips[activeTripId].items.unshift({
                 id: 'item_' + Date.now(),
                 name: name,
                 desc: desc,
@@ -344,21 +463,27 @@
             });
 
             saveData();
+            
+            // Limpiar inputs
             nameInput.value = '';
             descInput.value = '';
-            nameInput.focus();
+            
+            // Ocultar teclado en móvil después de agregar para ver la lista
+            nameInput.blur(); 
+            descInput.blur();
+
             renderItems();
         }
 
         function deleteItem(itemId) {
-            APP_DATA[activeTripId].items = APP_DATA[activeTripId].items.filter(i => i.id !== itemId);
+            APP_DATA.trips[activeTripId].items = APP_DATA.trips[activeTripId].items.filter(i => i.id !== itemId);
             saveData();
             renderItems();
         }
 
         function toggleReturn(itemId) {
             if (currentMode !== 'regreso') return;
-            const item = APP_DATA[activeTripId].items.find(i => i.id === itemId);
+            const item = APP_DATA.trips[activeTripId].items.find(i => i.id === itemId);
             if (item) {
                 item.packedForReturn = !item.packedForReturn;
                 saveData();
@@ -367,31 +492,31 @@
         }
 
         function renderItems() {
-            if (!activeTripId || !APP_DATA[activeTripId]) return;
+            if (!activeTripId || !APP_DATA.trips[activeTripId]) return;
 
             const list = document.getElementById('itemsList');
-            const items = APP_DATA[activeTripId].items;
+            const items = APP_DATA.trips[activeTripId].items || [];
             
             document.getElementById('item-count').textContent = items.length;
             list.innerHTML = '';
 
             if (items.length === 0) {
-                list.innerHTML = `<li class="p-8 text-center text-slate-400 text-sm">Tu bolso está vacío.<br>Agrega ropa u objetos arriba.</li>`;
+                list.innerHTML = `<li class="p-6 text-center text-slate-400 text-sm">Tu bolso está vacío.<br>Agrega ropa u objetos arriba.</li>`;
                 updateProgress(0, 0);
                 return;
             }
 
             let packedCount = 0;
 
-            // Ordenar: primero los no empacados (en regreso), y agrupados por categoría
+            // Ordenar items
             const sortedItems = [...items].sort((a, b) => {
                 if (currentMode === 'regreso') {
                     if (a.packedForReturn === b.packedForReturn) {
-                        return a.categoryId.localeCompare(b.categoryId);
+                        return (a.categoryId || '').localeCompare(b.categoryId || '');
                     }
-                    return a.packedForReturn ? 1 : -1; // Los empacados van abajo
+                    return a.packedForReturn ? 1 : -1;
                 }
-                return a.categoryId.localeCompare(b.categoryId); // En ida, agrupar por categoría
+                return (a.categoryId || '').localeCompare(b.categoryId || '');
             });
 
             sortedItems.forEach(item => {
@@ -400,30 +525,93 @@
                 const li = document.createElement('li');
                 const isPacked = currentMode === 'regreso' && item.packedForReturn;
                 
-                // Estilos según modo y estado
-                let liClass = "p-4 flex items-center justify-between transition-colors ";
+                let liClass = "p-3 sm:p-4 flex items-center justify-between transition-colors ";
                 if (currentMode === 'regreso') {
-                    liClass += "cursor-pointer select-none hover:bg-slate-50 ";
+                    // Tap states para móvil
+                    liClass += "cursor-pointer select-none active:bg-slate-100 ";
                     if (isPacked) liClass += "bg-emerald-50/50 ";
                 }
                 li.className = liClass;
 
-                // Evento click principal (solo útil en regreso)
+                // Evento click principal en toda el área (ideal para móvil)
                 if (currentMode === 'regreso') {
                     li.onclick = (e) => {
-                        // Evitar doble trigger si hace click exacto en el checkbox o botón
-                        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
+                        // Prevenir si toca el checkbox directamente para no hacer doble toggle
+                        if (e.target.type !== 'checkbox') {
                             toggleReturn(item.id);
                         }
                     };
                 }
 
                 // Contenido Izquierdo
-                let leftContent = `<div class="flex items-center gap-3">`;
+                let leftContent = `<div class="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">`; // min-w-0 crucial para truncate
                 
                 if (currentMode === 'regreso') {
+                    // Checkbox más grande para móvil
                     leftContent += `
-                        <input type="checkbox" class="w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 pointer-events-none" 
-                        ${isPacked ? 'checked' : ''}>
+                        <div class="mt-1">
+                            <input type="checkbox" class="w-5 h-5 sm:w-6 sm:h-6 rounded border-slate-300 text-emerald-500 pointer-events-none" 
+                            ${isPacked ? 'checked' : ''}>
+                        </div>
                     `;
-             
+                }
+
+                leftContent += `
+                    <div class="text-xl sm:text-2xl w-8 text-center flex-shrink-0 opacity-80 mt-0.5 ${isPacked ? 'grayscale' : ''}">${item.categoryEmoji || '📦'}</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-sm sm:text-base truncate ${isPacked ? 'text-slate-400 line-through' : 'text-slate-800'}">${item.name}</p>
+                        ${item.desc ? `<p class="text-xs sm:text-sm truncate ${isPacked ? 'text-slate-400' : 'text-slate-500'}">${item.desc}</p>` : ''}
+                        ${currentMode === 'ida' ? `<span class="inline-block mt-1 text-[10px] uppercase font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">${item.categoryName || 'Otros'}</span>` : ''}
+                    </div>
+                </div>`;
+
+                // Contenido Derecho
+                let rightContent = '';
+                if (currentMode === 'ida') {
+                    rightContent = `
+                        <button onclick="deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500 p-2 ml-2 rounded transition flex-shrink-0 active:bg-red-50">
+                            <i class="fa-regular fa-trash-can text-lg"></i>
+                        </button>
+                    `;
+                }
+
+                li.innerHTML = leftContent + rightContent;
+                list.appendChild(li);
+            });
+
+            updateProgress(packedCount, items.length);
+        }
+
+        function updateProgress(packed, total) {
+            if (currentMode !== 'regreso') return;
+            
+            const bar = document.getElementById('progress-bar');
+            const percentText = document.getElementById('progress-percent');
+            const infoText = document.getElementById('progress-text');
+            
+            if (total === 0) {
+                bar.style.width = '0%';
+                percentText.textContent = '0%';
+                infoText.textContent = 'No hay items';
+                return;
+            }
+
+            const percent = Math.round((packed / total) * 100);
+            bar.style.width = `${percent}%`;
+            percentText.textContent = `${percent}%`;
+            
+            if (percent === 100) {
+                infoText.innerHTML = '🎉 ¡Todo listo!';
+                infoText.className = "text-emerald-600 font-bold text-sm";
+            } else {
+                infoText.textContent = `Empacado: ${packed}/${total}`;
+                infoText.className = "text-slate-600 text-sm";
+            }
+        }
+
+        // Arrancar
+        window.onload = init;
+
+    </script>
+</body>
+</html>
