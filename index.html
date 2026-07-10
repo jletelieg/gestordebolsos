@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -427,66 +426,4 @@
                         <input type="checkbox" class="w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 pointer-events-none" 
                         ${isPacked ? 'checked' : ''}>
                     `;
-                }
-
-                leftContent += `
-                    <div class="text-2xl w-8 text-center opacity-80 ${isPacked ? 'grayscale' : ''}">${item.categoryEmoji}</div>
-                    <div>
-                        <p class="font-medium ${isPacked ? 'text-slate-400 line-through' : 'text-slate-800'}">${item.name}</p>
-                        ${item.desc ? `<p class="text-xs ${isPacked ? 'text-slate-400' : 'text-slate-500'}">${item.desc}</p>` : ''}
-                        ${currentMode === 'ida' ? `<span class="text-[10px] uppercase font-bold text-slate-400">${item.categoryName}</span>` : ''}
-                    </div>
-                </div>`;
-
-                // Contenido Derecho (Botón borrar solo en Ida)
-                let rightContent = '';
-                if (currentMode === 'ida') {
-                    rightContent = `
-                        <button onclick="deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500 p-2 rounded transition">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
-                    `;
-                }
-
-                li.innerHTML = leftContent + rightContent;
-                list.appendChild(li);
-            });
-
-            updateProgress(packedCount, items.length);
-        }
-
-        function updateProgress(packed, total) {
-            if (currentMode !== 'regreso') return;
-            
-            const bar = document.getElementById('progress-bar');
-            const percentText = document.getElementById('progress-percent');
-            const infoText = document.getElementById('progress-text');
-            
-            if (total === 0) {
-                bar.style.width = '0%';
-                percentText.textContent = '0%';
-                infoText.textContent = 'No hay items';
-                return;
-            }
-
-            const percent = Math.round((packed / total) * 100);
-            bar.style.width = `${percent}%`;
-            percentText.textContent = `${percent}%`;
-            
-            if (percent === 100) {
-                infoText.innerHTML = '🎉 ¡Todo listo para volver!';
-                infoText.className = "text-emerald-600 font-bold";
-            } else {
-                infoText.textContent = `Empacado: ${packed} de ${total}`;
-                infoText.className = "text-slate-600";
-            }
-        }
-
-        // Arrancar
-        window.onload = init;
-
-    </script>
-</body>
-</html>
-
-```
+             
