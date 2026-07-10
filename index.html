@@ -1,250 +1,492 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Equipaje</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --bg: #f8f9fa;
-            --card-bg: #ffffff;
-            --text: #333333;
+        body {
+            background-color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1f2937;
         }
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        h1, h2 { color: var(--primary); text-align: center; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        
-        /* Formularios y Botones */
-        input, select, textarea, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
-        button { background-color: var(--secondary); color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #2980b9; }
-        .btn-success { background-color: var(--success); }
-        .btn-success:hover { background-color: #219a52; }
-        .btn-danger { background-color: #e74c3c; width: auto; padding: 5px 10px; font-size: 14px; }
-        
-        /* Controles de Vista */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { flex: 1; padding: 10px; text-align: center; background: #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; }
-        .tab.active { background: var(--secondary); color: white; }
-        .hidden { display: none !important; }
-        
-        /* Lista de Items */
-        .item-list { list-style: none; padding: 0; }
-        .item-card { background: #fdfdfd; border-left: 5px solid var(--secondary); padding: 15px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .item-info h4 { margin: 0 0 5px 0; }
-        .item-info p { margin: 0; font-size: 14px; color: #666; }
-        .badge { display: inline-block; padding: 3px 8px; background: #eee; border-radius: 12px; font-size: 12px; margin-top: 5px; }
-        
-        /* Checkbox Modo Regreso */
-        .return-check { transform: scale(1.5); margin-right: 15px; cursor: pointer; }
-        .packed { opacity: 0.6; text-decoration: line-through; border-left-color: var(--success); }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar for categories */
+        .category-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .category-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        .category-scroll::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 4px;
+        }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8 min-h-screen">
 
-<div class="container">
-    <h1>🎒 Mi Equipaje</h1>
-
-    <div class="card">
-        <label for="tripSelect"><strong>Seleccionar o Crear Viaje:</strong></label>
-        <select id="tripSelect" onchange="loadTrip()">
-            <option value="">-- Crea un viaje nuevo --</option>
-        </select>
-        <input type="text" id="newTripName" placeholder="Nombre del nuevo viaje (Ej: Sur, Febrero)">
-        <button onclick="createTrip()">Crear y Seleccionar Viaje</button>
-    </div>
-
-    <div id="tripInterface" class="hidden">
-        <h2 id="currentTripTitle">Viaje Actual</h2>
+    <div class="max-w-xl mx-auto">
         
-        <div class="tabs">
-            <div class="tab active" id="tabIda" onclick="switchMode('ida')">🛫 Ida (Armar Bolso)</div>
-            <div class="tab" id="tabRegreso" onclick="switchMode('regreso')">🛬 Regreso (Empacar)</div>
-        </div>
+        <!-- HEADER GENERAL -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-suitcase-rolling text-blue-600"></i> Mi Equipaje
+            </h1>
+            <p class="text-slate-500 text-sm mt-1">Nunca más se te quedará nada</p>
+        </header>
 
-        <div id="modeIda">
-            <div class="card">
-                <h3>Agregar al bolso</h3>
-                <input type="text" id="itemName" placeholder="¿Qué llevas? (Ej: Zapatillas, Cargador)">
-                <select id="itemCategory">
-                    <option value="Ropa">Ropa</option>
-                    <option value="Electrónica">Electrónica</option>
-                    <option value="Aseo">Aseo Personal</option>
-                    <option value="Documentos">Documentos/Plata</option>
-                    <option value="Deporte/Actividad">Deporte/Actividad</option>
-                    <option value="Otros">Otros</option>
-                </select>
-                <textarea id="itemDesc" placeholder="Descripción o detalle (Ej: Las de trail azules)"></textarea>
-                <button onclick="addItem()" class="btn-success">Guardar en el bolso</button>
+        <!-- ========================================== -->
+        <!-- PANTALLA 1: SELECCIÓN O CREACIÓN DE VIAJE  -->
+        <!-- ========================================== -->
+        <div id="view-home" class="fade-in">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <h2 class="text-xl font-semibold mb-4 text-slate-700">Tus Viajes</h2>
+                
+                <!-- Lista de viajes existentes -->
+                <div id="tripList" class="space-y-3 mb-6">
+                    <!-- Se llena con JS -->
+                </div>
+
+                <div class="border-t border-slate-100 pt-5 mt-2">
+                    <h3 class="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wide">Crear Nuevo Viaje</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="newTripInput" placeholder="Ej: Fin de semana en la playa" 
+                               class="flex-1 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        <button onclick="createNewTrip()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-medium transition shadow-sm">
+                            <i class="fa-solid fa-plus"></i> Crear
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card">
-            <h3 id="listTitle">Mi Bolso</h3>
-            <ul id="itemsContainer" class="item-list">
+
+        <!-- ========================================== -->
+        <!-- PANTALLA 2: DENTRO DEL VIAJE               -->
+        <!-- ========================================== -->
+        <div id="view-trip" class="hidden fade-in space-y-6">
+            
+            <!-- Cabecera del Viaje -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex justify-between items-center sticky top-2 z-10">
+                <div>
+                    <button onclick="goHome()" class="text-slate-400 hover:text-slate-700 mr-2 transition">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <span id="currentTripName" class="font-bold text-lg text-slate-800">Nombre del Viaje</span>
+                </div>
+                <button onclick="deleteCurrentTrip()" class="text-red-400 hover:text-red-600 text-sm px-2 py-1 rounded transition">
+                    <i class="fa-regular fa-trash-can"></i> Eliminar
+                </button>
+            </div>
+
+            <!-- Tabs: Ida / Regreso -->
+            <div class="flex p-1 bg-slate-200 rounded-xl">
+                <button id="tab-ida" onclick="setMode('ida')" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow text-blue-700 transition">
+                    <i class="fa-solid fa-plane-departure mr-1"></i> Ida (Armando)
+                </button>
+                <button id="tab-regreso" onclick="setMode('regreso')" class="flex-1 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition">
+                    <i class="fa-solid fa-plane-arrival mr-1"></i> Regreso (Empacando)
+                </button>
+            </div>
+
+            <!-- Progreso (Solo Regreso) -->
+            <div id="progress-container" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex justify-between text-sm mb-2 font-medium">
+                    <span class="text-slate-600" id="progress-text">Progreso de empacado</span>
+                    <span class="text-emerald-600 font-bold" id="progress-percent">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Formulario Agregar Item (Solo Ida) -->
+            <div id="add-item-form" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                <h3 class="font-semibold text-slate-700 mb-3"><i class="fa-solid fa-plus-circle text-blue-500"></i> Agregar al bolso</h3>
+                
+                <input type="text" id="itemName" placeholder="¿Qué llevas? (Ej: Polerón favorito)" class="w-full border border-slate-300 rounded-xl px-4 py-3 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                
+                <!-- Categorías con Scroll Horizontal -->
+                <p class="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Categoría</p>
+                <div class="flex overflow-x-auto gap-2 pb-2 mb-3 category-scroll" id="categorySelector">
+                    <!-- Se llena con JS -->
+                </div>
+
+                <input type="text" id="itemDesc" placeholder="Nota opcional (Ej: En el bolsillo exterior)" class="w-full border border-slate-200 bg-slate-50 rounded-xl px-4 py-2 mb-4 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                
+                <button onclick="addItem()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-xl transition">
+                    Guardar en el bolso
+                </button>
+            </div>
+
+            <!-- Lista de Items -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-700" id="list-title">Contenido del Bolso</h3>
+                    <span id="item-count" class="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full font-bold">0</span>
+                </div>
+                <ul id="itemsList" class="divide-y divide-slate-100">
+                    <!-- Se llena con JS -->
                 </ul>
+            </div>
+
         </div>
+
     </div>
-</div>
 
-<script>
-    let trips = JSON.parse(localStorage.getItem('myTrips')) || {};
-    let currentTripId = null;
-    let currentMode = 'ida'; // 'ida' o 'regreso'
+    <script>
+        // ==========================================
+        // DATOS Y CATEGORÍAS
+        // ==========================================
+        const CATEGORIES = [
+            { id: 'poleras', emoji: '👕', name: 'Poleras / Camisas' },
+            { id: 'pantalones', emoji: '👖', name: 'Pantalones / Jeans' },
+            { id: 'shorts', emoji: '🩳', name: 'Shorts / Bermudas' },
+            { id: 'abrigos', emoji: '🧥', name: 'Chaquetas / Abrigos' },
+            { id: 'chalecos', emoji: '🧶', name: 'Chalecos / Polerones' },
+            { id: 'ropa_interior', emoji: '🩲', name: 'Ropa Interior' },
+            { id: 'calcetines', emoji: '🧦', name: 'Calcetines' },
+            { id: 'pijama', emoji: '🌙', name: 'Pijama' },
+            { id: 'zapatillas', emoji: '👟', name: 'Zapatillas' },
+            { id: 'zapatos', emoji: '👞', name: 'Zapatos / Formal' },
+            { id: 'sandalias', emoji: '🩴', name: 'Sandalias / Chalas' },
+            { id: 'traje_bano', emoji: '🩱', name: 'Traje de Baño' },
+            { id: 'gorros', emoji: '🧢', name: 'Gorros / Sombreros' },
+            { id: 'accesorios', emoji: '🕶️', name: 'Lentes / Cinturón' },
+            { id: 'aseo', emoji: '🪥', name: 'Útiles de Aseo' },
+            { id: 'electronica', emoji: '🔌', name: 'Cargadores / Electrónica' },
+            { id: 'documentos', emoji: '🛂', name: 'Documentos / Dinero' },
+            { id: 'otros', emoji: '📦', name: 'Otros' }
+        ];
 
-    // Inicializar el selector al cargar
-    function init() {
-        updateTripSelect();
-    }
+        let APP_DATA = JSON.parse(localStorage.getItem('viajes_app_data')) || {};
+        let activeTripId = null;
+        let selectedCategory = 'poleras'; // Por defecto
+        let currentMode = 'ida';
 
-    function saveToMemory() {
-        localStorage.setItem('myTrips', JSON.stringify(trips));
-    }
-
-    function updateTripSelect() {
-        const select = document.getElementById('tripSelect');
-        select.innerHTML = '<option value="">-- Selecciona un viaje --</option>';
-        for (let id in trips) {
-            select.innerHTML += `<option value="${id}">${trips[id].name}</option>`;
-        }
-        if(currentTripId) select.value = currentTripId;
-    }
-
-    function createTrip() {
-        const nameInput = document.getElementById('newTripName');
-        const name = nameInput.value.trim();
-        if (!name) return alert('Ponle un nombre al viaje');
-
-        const id = 'trip_' + Date.now();
-        trips[id] = { name: name, items: [] };
-        saveToMemory();
-        
-        nameInput.value = '';
-        currentTripId = id;
-        updateTripSelect();
-        loadTrip();
-    }
-
-    function loadTrip() {
-        const select = document.getElementById('tripSelect');
-        currentTripId = select.value;
-        const interfaceDiv = document.getElementById('tripInterface');
-
-        if (!currentTripId) {
-            interfaceDiv.classList.add('hidden');
-            return;
+        // ==========================================
+        // INICIALIZACIÓN
+        // ==========================================
+        function init() {
+            renderCategories();
+            showHome();
         }
 
-        interfaceDiv.classList.remove('hidden');
-        document.getElementById('currentTripTitle').innerText = `Viaje: ${trips[currentTripId].name}`;
-        renderItems();
-    }
+        function saveData() {
+            localStorage.setItem('viajes_app_data', JSON.stringify(APP_DATA));
+        }
 
-    function addItem() {
-        const name = document.getElementById('itemName').value.trim();
-        const category = document.getElementById('itemCategory').value;
-        const desc = document.getElementById('itemDesc').value.trim();
+        // ==========================================
+        // NAVEGACIÓN Y VISTAS
+        // ==========================================
+        function showHome() {
+            activeTripId = null;
+            document.getElementById('view-home').classList.remove('hidden');
+            document.getElementById('view-trip').classList.add('hidden');
+            renderTripList();
+        }
 
-        if (!name) return alert('Escribe qué quieres llevar');
-
-        const newItem = {
-            id: Date.now(),
-            name: name,
-            category: category,
-            desc: desc,
-            packedForReturn: false // Controla si ya lo metiste al bolso de vuelta
-        };
-
-        trips[currentTripId].items.push(newItem);
-        saveToMemory();
-
-        document.getElementById('itemName').value = '';
-        document.getElementById('itemDesc').value = '';
-        renderItems();
-    }
-
-    function deleteItem(itemId) {
-        trips[currentTripId].items = trips[currentTripId].items.filter(i => i.id !== itemId);
-        saveToMemory();
-        renderItems();
-    }
-
-    function toggleReturnStatus(itemId) {
-        const item = trips[currentTripId].items.find(i => i.id === itemId);
-        if (item) {
-            item.packedForReturn = !item.packedForReturn;
-            saveToMemory();
+        function openTrip(id) {
+            activeTripId = id;
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-trip').classList.remove('hidden');
+            
+            document.getElementById('currentTripName').textContent = APP_DATA[id].name;
+            setMode('ida'); // Siempre abre en modo ida
             renderItems();
         }
-    }
 
-    function switchMode(mode) {
-        currentMode = mode;
-        document.getElementById('tabIda').classList.toggle('active', mode === 'ida');
-        document.getElementById('tabRegreso').classList.toggle('active', mode === 'regreso');
-        
-        if (mode === 'ida') {
-            document.getElementById('modeIda').classList.remove('hidden');
-            document.getElementById('listTitle').innerText = 'Mi Bolso (Ida)';
-        } else {
-            document.getElementById('modeIda').classList.add('hidden');
-            document.getElementById('listTitle').innerText = 'Checklist de Regreso (¡Que no se quede nada!)';
-        }
-        renderItems();
-    }
-
-    function renderItems() {
-        const container = document.getElementById('itemsContainer');
-        container.innerHTML = '';
-
-        if (!currentTripId || trips[currentTripId].items.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#888;">El bolso está vacío.</p>';
-            return;
+        function goHome() {
+            showHome();
         }
 
-        // Agrupar visualmente por categoría
-        const sortedItems = [...trips[currentTripId].items].sort((a, b) => a.category.localeCompare(b.category));
-
-        sortedItems.forEach(item => {
-            const isReturnMode = currentMode === 'regreso';
-            const packedClass = (isReturnMode && item.packedForReturn) ? 'packed' : '';
+        // ==========================================
+        // GESTIÓN DE VIAJES
+        // ==========================================
+        function renderTripList() {
+            const container = document.getElementById('tripList');
+            container.innerHTML = '';
             
-            let checkboxHTML = '';
-            if (isReturnMode) {
-                checkboxHTML = `<input type="checkbox" class="return-check" 
-                                onchange="toggleReturnStatus(${item.id})" 
-                                ${item.packedForReturn ? 'checked' : ''}>`;
+            const tripIds = Object.keys(APP_DATA).sort((a,b) => APP_DATA[b].createdAt - APP_DATA[a].createdAt);
+
+            if (tripIds.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-400 text-sm py-4 italic">No tienes viajes guardados. ¡Crea uno nuevo!</p>';
+                return;
             }
 
-            let deleteBtnHTML = '';
-            if (!isReturnMode) {
-                deleteBtnHTML = `<button class="btn-danger" onclick="deleteItem(${item.id})">Borrar</button>`;
-            }
-
-            container.innerHTML += `
-                <li class="item-card ${packedClass}">
-                    <div style="display: flex; align-items: center;">
-                        ${checkboxHTML}
-                        <div class="item-info">
-                            <h4>${item.name}</h4>
-                            ${item.desc ? `<p>${item.desc}</p>` : ''}
-                            <span class="badge">${item.category}</span>
+            tripIds.forEach(id => {
+                const trip = APP_DATA[id];
+                const itemCount = trip.items.length;
+                
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center p-4 bg-slate-50 hover:bg-blue-50 rounded-xl cursor-pointer border border-slate-100 transition group';
+                div.onclick = () => openTrip(id);
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-plane"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-slate-700 group-hover:text-blue-700 transition">${trip.name}</h4>
+                            <p class="text-xs text-slate-500">${itemCount} cosa${itemCount !== 1 ? 's' : ''} en el bolso</p>
                         </div>
                     </div>
-                    ${deleteBtnHTML}
-                </li>
-            `;
-        });
-    }
+                    <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-400 transition"></i>
+                `;
+                container.appendChild(div);
+            });
+        }
 
-    // Arrancar la app
-    init();
-</script>
+        function createNewTrip() {
+            const input = document.getElementById('newTripInput');
+            const name = input.value.trim();
+            if (!name) return alert('Ponle un nombre a tu viaje');
 
+            const id = 'trip_' + Date.now();
+            APP_DATA[id] = {
+                name: name,
+                createdAt: Date.now(),
+                items: []
+            };
+
+            saveData();
+            input.value = '';
+            openTrip(id);
+        }
+
+        function deleteCurrentTrip() {
+            if (confirm(`¿Seguro que quieres borrar el viaje "${APP_DATA[activeTripId].name}"? Se perderá todo su contenido.`)) {
+                delete APP_DATA[activeTripId];
+                saveData();
+                goHome();
+            }
+        }
+
+        // ==========================================
+        // GESTIÓN DENTRO DEL VIAJE
+        // ==========================================
+        function renderCategories() {
+            const container = document.getElementById('categorySelector');
+            container.innerHTML = '';
+            
+            CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `flex-shrink-0 px-3 py-2 rounded-lg text-sm border transition flex items-center gap-1
+                    ${selectedCategory === cat.id 
+                        ? 'bg-blue-100 border-blue-300 text-blue-800 font-semibold' 
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`;
+                btn.innerHTML = `<span>${cat.emoji}</span> <span>${cat.name.split(' / ')[0]}</span>`;
+                btn.onclick = () => {
+                    selectedCategory = cat.id;
+                    renderCategories(); // re-render to update classes
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            const tabIda = document.getElementById('tab-ida');
+            const tabRegreso = document.getElementById('tab-regreso');
+            const addForm = document.getElementById('add-item-form');
+            const progress = document.getElementById('progress-container');
+            const listTitle = document.getElementById('list-title');
+
+            if (mode === 'ida') {
+                tabIda.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow text-blue-700 transition";
+                tabRegreso.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition";
+                addForm.classList.remove('hidden');
+                progress.classList.add('hidden');
+                listTitle.textContent = "Contenido del Bolso";
+            } else {
+                tabRegreso.className = "flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow text-emerald-700 transition";
+                tabIda.className = "flex-1 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition";
+                addForm.classList.add('hidden');
+                progress.classList.remove('hidden');
+                listTitle.textContent = "Checklist de Regreso";
+            }
+            renderItems();
+        }
+
+        function addItem() {
+            const nameInput = document.getElementById('itemName');
+            const descInput = document.getElementById('itemDesc');
+            
+            const name = nameInput.value.trim();
+            const desc = descInput.value.trim();
+
+            if (!name) {
+                nameInput.focus();
+                return;
+            }
+
+            const catInfo = CATEGORIES.find(c => c.id === selectedCategory);
+
+            APP_DATA[activeTripId].items.unshift({ // unshift para agregar al principio
+                id: 'item_' + Date.now(),
+                name: name,
+                desc: desc,
+                categoryId: catInfo.id,
+                categoryEmoji: catInfo.emoji,
+                categoryName: catInfo.name,
+                packedForReturn: false
+            });
+
+            saveData();
+            nameInput.value = '';
+            descInput.value = '';
+            nameInput.focus();
+            renderItems();
+        }
+
+        function deleteItem(itemId) {
+            APP_DATA[activeTripId].items = APP_DATA[activeTripId].items.filter(i => i.id !== itemId);
+            saveData();
+            renderItems();
+        }
+
+        function toggleReturn(itemId) {
+            if (currentMode !== 'regreso') return;
+            const item = APP_DATA[activeTripId].items.find(i => i.id === itemId);
+            if (item) {
+                item.packedForReturn = !item.packedForReturn;
+                saveData();
+                renderItems();
+            }
+        }
+
+        function renderItems() {
+            if (!activeTripId || !APP_DATA[activeTripId]) return;
+
+            const list = document.getElementById('itemsList');
+            const items = APP_DATA[activeTripId].items;
+            
+            document.getElementById('item-count').textContent = items.length;
+            list.innerHTML = '';
+
+            if (items.length === 0) {
+                list.innerHTML = `<li class="p-8 text-center text-slate-400 text-sm">Tu bolso está vacío.<br>Agrega ropa u objetos arriba.</li>`;
+                updateProgress(0, 0);
+                return;
+            }
+
+            let packedCount = 0;
+
+            // Ordenar: primero los no empacados (en regreso), y agrupados por categoría
+            const sortedItems = [...items].sort((a, b) => {
+                if (currentMode === 'regreso') {
+                    if (a.packedForReturn === b.packedForReturn) {
+                        return a.categoryId.localeCompare(b.categoryId);
+                    }
+                    return a.packedForReturn ? 1 : -1; // Los empacados van abajo
+                }
+                return a.categoryId.localeCompare(b.categoryId); // En ida, agrupar por categoría
+            });
+
+            sortedItems.forEach(item => {
+                if (item.packedForReturn) packedCount++;
+
+                const li = document.createElement('li');
+                const isPacked = currentMode === 'regreso' && item.packedForReturn;
+                
+                // Estilos según modo y estado
+                let liClass = "p-4 flex items-center justify-between transition-colors ";
+                if (currentMode === 'regreso') {
+                    liClass += "cursor-pointer select-none hover:bg-slate-50 ";
+                    if (isPacked) liClass += "bg-emerald-50/50 ";
+                }
+                li.className = liClass;
+
+                // Evento click principal (solo útil en regreso)
+                if (currentMode === 'regreso') {
+                    li.onclick = (e) => {
+                        // Evitar doble trigger si hace click exacto en el checkbox o botón
+                        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
+                            toggleReturn(item.id);
+                        }
+                    };
+                }
+
+                // Contenido Izquierdo
+                let leftContent = `<div class="flex items-center gap-3">`;
+                
+                if (currentMode === 'regreso') {
+                    leftContent += `
+                        <input type="checkbox" class="w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 pointer-events-none" 
+                        ${isPacked ? 'checked' : ''}>
+                    `;
+                }
+
+                leftContent += `
+                    <div class="text-2xl w-8 text-center opacity-80 ${isPacked ? 'grayscale' : ''}">${item.categoryEmoji}</div>
+                    <div>
+                        <p class="font-medium ${isPacked ? 'text-slate-400 line-through' : 'text-slate-800'}">${item.name}</p>
+                        ${item.desc ? `<p class="text-xs ${isPacked ? 'text-slate-400' : 'text-slate-500'}">${item.desc}</p>` : ''}
+                        ${currentMode === 'ida' ? `<span class="text-[10px] uppercase font-bold text-slate-400">${item.categoryName}</span>` : ''}
+                    </div>
+                </div>`;
+
+                // Contenido Derecho (Botón borrar solo en Ida)
+                let rightContent = '';
+                if (currentMode === 'ida') {
+                    rightContent = `
+                        <button onclick="deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500 p-2 rounded transition">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    `;
+                }
+
+                li.innerHTML = leftContent + rightContent;
+                list.appendChild(li);
+            });
+
+            updateProgress(packedCount, items.length);
+        }
+
+        function updateProgress(packed, total) {
+            if (currentMode !== 'regreso') return;
+            
+            const bar = document.getElementById('progress-bar');
+            const percentText = document.getElementById('progress-percent');
+            const infoText = document.getElementById('progress-text');
+            
+            if (total === 0) {
+                bar.style.width = '0%';
+                percentText.textContent = '0%';
+                infoText.textContent = 'No hay items';
+                return;
+            }
+
+            const percent = Math.round((packed / total) * 100);
+            bar.style.width = `${percent}%`;
+            percentText.textContent = `${percent}%`;
+            
+            if (percent === 100) {
+                infoText.innerHTML = '🎉 ¡Todo listo para volver!';
+                infoText.className = "text-emerald-600 font-bold";
+            } else {
+                infoText.textContent = `Empacado: ${packed} de ${total}`;
+                infoText.className = "text-slate-600";
+            }
+        }
+
+        // Arrancar
+        window.onload = init;
+
+    </script>
 </body>
 </html>
+
+```
